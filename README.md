@@ -1,7 +1,8 @@
 # IOTS Project Website
- Front and Backend for IOTS Project Website
+Front and Backend for IOTS Project Website.
 # Deploying
-Both the front end and backend are intended to be deployed on the same machine
+Both the front end and backend are intended to be deployed on the same machine.
+
 Deploying the front end:
 - cd into the FrontEnd\my-app folder
 - run "npm run dev"

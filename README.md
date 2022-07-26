@@ -9,6 +9,12 @@ Deploying the front end:
 
 A notif should pop up with the server runnning on a localhost
 
+if you want to access the front end from other machines:
+- cd into the FrontEnd/my-app folder
+- run "npm run dev -- --host --port <whatever port you want>"
+
+A notif should pop up with the ip address needed to acces the page on the local area network.
+
 Deploying the Backend:
 - cd into the Server folder
 - run "node https.js"

@@ -1,2 +1,7 @@
 
 *.json
+Website/Server/key.pem
+*.pem
+Website/Server/key.pem
+Website/Server/key.pem
+Website/Server/cert.pem

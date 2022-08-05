@@ -5,3 +5,7 @@ Website/Server/key.pem
 Website/Server/key.pem
 Website/Server/key.pem
 Website/Server/cert.pem
+*.js
+Website/Server/cert.pem
+Website/Server/key.pem
+*.pem

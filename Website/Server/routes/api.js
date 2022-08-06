@@ -28,14 +28,25 @@ router.get("/users/get", (req, res) => {
 
 router.post("/sessions/create", async (req, res) => {
     var reqBody = req.body;
-    var uid = "";
 
     // Verify user, if there is an error it gets caught
-    const userToken = reqBody["User"];
-    const decodedToken = await fs_auth.verifyIdToken(userToken)
-        .catch((error) => { console.error(err); });
+    const userToken = reqBody["UserID"];
+    var decodedToken = '';
 
+    try
+    {
+        decodedToken = await fs_auth.verifyIdToken(userToken)
+    }
+    catch(error)
+    {
+        console.error(error);
+        return;
+    }
+
+    // Create id
     var num = Math.floor(Math.random() * (999999 + 1)).toString();
+
+    // Database functions
     const collectionRef = fs_db.collection("Sessions");
 
     // Check if id is used elsewhere
@@ -43,22 +54,23 @@ router.post("/sessions/create", async (req, res) => {
         const docRef = fs_db.collection("Sessions").doc(num);
         const doc = await docRef.get();
         if (doc.exists) {
-            num = Math.floor(Math.random() * (999999 + 1)).toString();
+            num = Math.floor(Math.random() * (999999 + 1 - 10000) + 10000).toString();
         }
         else {
+            console.log('valid id');
             break;
         }
     } while (1);
 
-    console.log('valid id');
+
     reqBody["Session_ID"] = num;
-    reqBody["User"] = decodedToken.uid;
-    const response = {};
-    response["Session_ID_Code"] = num;
+    reqBody["UserID"] = decodedToken.uid;
+    const response = {
+        "Session_ID_Code": num
+    };
     res.json(response);
 
     collectionRef.doc(num).set(reqBody);
-
 })
 
 router.get("/sessions/getAll", async (req, res) => {
@@ -71,7 +83,7 @@ router.get("/sessions/getAll", async (req, res) => {
     console.log(UID);
 
     const collectionRef = fs_db.collection("Sessions");
-    collectionRef.where("User", "==", UID).get()
+    collectionRef.where("UserID", "==", UID).get()
         .then((snapshot) => {
             if (snapshot.empty) {
                 console.log("no documents");
@@ -89,16 +101,35 @@ router.get("/sessions/getAll", async (req, res) => {
 });
 
 router.get("/sessions/get", async (req, res) => {
+    console.log(`getting specific session: ${req.query.id}`);
     const sessionID = req.query.id;
     const sessionDocRef = fs_db.collection("Sessions").doc(sessionID);
     const sessionDoc = await sessionDocRef.get();
     if (sessionDoc.exists) {
+        console.log(`File found:`, sessionDoc.data());
         res.json(sessionDoc.data());
     }
     else {
         res.status(400); // Replace with actual error code
-        res.send("no document found");
+        res.json({"status": "no such file"});
     }
 });
 
+router.post("/sessions/update", async (req, res) =>
+{
+    console.log("updating document");
+    
+    const sessionUpdate = req.body;
+
+    console.log(sessionUpdate);
+    const sessionID = sessionUpdate["Session_ID"];
+    const sessionDocRef = fs_db.collection("Sessions").doc(sessionID);
+
+    const result = await sessionDocRef.update(sessionUpdate);
+    console.log(result);
+    const response = {
+        "Status": "ok"
+    };
+    res.json(response);
+});
 module.exports = router

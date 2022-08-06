@@ -3,7 +3,7 @@
 	import { page } from '$app/stores';
 
 	$: currentRoute = $page.url.pathname;
-	export let Command; 
+	export let Command;
 </script>
 
 <div>
@@ -30,7 +30,7 @@
 			<div class="container mx-auto w-8/12">
 				<h1 class="pt-8">Your active sessions</h1>
 
-				<SessionsTable Command={Command}/>
+				<SessionsTable {Command} />
 			</div>
 		</div>
 
@@ -39,19 +39,25 @@
 			<ul class="menu p-4 overflow-y-auto w-80 bg-base-100 text-base-content">
 				<!-- Sidebar content here -->
 				<li>
-					<a class:active={currentRoute === '/Console/Sessions'} href="Console/Sessions"
-						>Active Sessions</a
-					>
+					<a class:active={currentRoute === '/Console/Sessions'} href="Sessions">Active Sessions</a>
 				</li>
 				<li>
-					<a class:active={currentRoute === '/Console/Sessions/All'} href="Console/Sessions/All"
+					<a class:active={currentRoute === '/Console/Sessions/All'} href="Sessions/All"
 						>All Sessions</a
 					>
 				</li>
 				<li>
-					<a
-						class:active={currentRoute === '/Console/Sessions/History'}
-						href="Console/Sessions/History">Past Sessions</a
+					<a class:active={currentRoute === '/Console/Sessions/History'} href="Sessions/History"
+						>Past Sessions</a
+					>
+				</li>
+				<div class="flex flex-col w-full border-opacity-50">
+					<div class="divider" />
+				</div>
+
+				<li>
+					<a class:active={currentRoute === '/Console/Sessions/New'} href="Sessions/New"
+						>Create Session</a
 					>
 				</li>
 			</ul>

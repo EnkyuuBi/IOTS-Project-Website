@@ -1,5 +1,6 @@
 <script>
     import {page} from "$app/stores";
+import EditSession from "$lib/editSession.svelte";
     
     import ViewSession from "$lib/viewSession.svelte";
 
@@ -11,5 +12,5 @@
 </script>
 
 <div>
-	<ViewSession Object={result}/>
+	<EditSession Object={result}/>
 </div>

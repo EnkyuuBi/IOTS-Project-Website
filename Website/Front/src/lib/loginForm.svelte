@@ -17,9 +17,6 @@
             {
                 const user = userCredential.user;
                 localStorage.setItem("uid", user.uid);
-                getIdToken(user).then((token)=>{
-                    localStorage.setItem("idToken", token);
-                });
                 goto("/Console");
             }).catch((error) => {
                 console.error(error);

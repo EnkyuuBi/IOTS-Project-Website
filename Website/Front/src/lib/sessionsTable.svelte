@@ -1,26 +1,24 @@
 <script>
 	import { onMount } from 'svelte';
+	import { getAuth, getIdToken } from 'firebase/auth';
 
+	const auth = getAuth();
 	export let Command;
 
 	let url = '';
 	let result = {};
-	let uid = '';
 
 	onMount(async () => {
-		console.log(Command);
-		uid = localStorage.getItem('idToken');
-		console.log(uid);
-
-		if (Command == 'getActive') {
-			url = `https://localhost:8000/api/Sessions/getAll?uid=${uid}`;
-		} else if (Command == 'getAll') {
-		}
-		console.log(url);
-		await fetch(url)
-			.then((response) => response.json())
-			.then((data) => (result = data));
-		console.log(result);
+		await auth.onAuthStateChanged(async (user) => {
+			const uid = await user?.getIdToken();
+			if (Command == 'getActive') {
+				url = `https://localhost:8000/api/Sessions/getAll?uid=${uid}`;
+			} else if (Command == 'getAll') {
+			}
+			await fetch(url)
+				.then((response) => response.json())
+				.then((data) => (result = data));
+		});
 	});
 </script>
 
@@ -65,7 +63,7 @@
 									d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
 								/></svg
 							>
-                        </a>
+						</a>
 					</td>
 				</tr>
 			{/each}

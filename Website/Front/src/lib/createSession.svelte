@@ -1,7 +1,10 @@
 <script>
 	import { goto } from '$app/navigation';
-
 	import { onMount } from 'svelte';
+	import { getAuth, getIdToken } from 'firebase/auth';
+
+	const auth = getAuth();
+
 	var newSession = {};
 	var User = '';
 	var Username = '';
@@ -9,8 +12,8 @@
 
 	let isModalOpen = false;
 	async function createSession() {
-		newSession['UserID'] = localStorage.getItem('idToken');
-        newSession['Status'] = "Ready"
+		newSession['UserID'] = await auth.currentUser?.getIdToken();
+		newSession['Status'] = 'Ready';
 
 		console.log(newSession);
 
@@ -24,10 +27,10 @@
 
 		console.log(res);
 		if (res['ok'] == true) {
-            isModalOpen = true;
-            setTimeout (() => {
-                goto('/Console/Sessions');
-            }, 3000);
+			isModalOpen = true;
+			setTimeout(() => {
+				goto('/Console/Sessions');
+			}, 3000);
 		}
 	}
 
@@ -40,9 +43,7 @@
 <div class="modal" class:modal-open={isModalOpen}>
 	<div class="modal-box">
 		<h3 class="font-bold text-lg">Session create successful</h3>
-		<p class="py-4">
-			You'll be sent back to the sessions page in a while...
-		</p>
+		<p class="py-4">You'll be sent back to the sessions page in a while...</p>
 	</div>
 </div>
 

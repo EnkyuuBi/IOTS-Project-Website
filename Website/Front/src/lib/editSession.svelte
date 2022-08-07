@@ -1,19 +1,25 @@
 <script>
 	import { goto } from '$app/navigation';
+
+	import { getAuth, getIdToken } from 'firebase/auth';
+
+	const auth = getAuth();
+
 	export let Object;
 	console.log(Object);
 
 	let isModalOpen = false;
 
 	async function editSession() {
-		const res = await fetch('https://localhost:8000/api/sessions/update', {
+        const token = await auth.currentUser?.getIdToken();
+		const res = await fetch(`https://localhost:8000/api/sessions/update?id=${Object.Session_ID}&token=${token}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json;charset=utf-8'
 			},
 			body: JSON.stringify(Object)
 		});
-        console.log(res);
+		console.log(res);
 
 		if (res['ok'] == true) {
 			isModalOpen = true;

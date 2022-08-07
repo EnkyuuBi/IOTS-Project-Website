@@ -33,12 +33,10 @@ router.post("/sessions/create", async (req, res) => {
     const userToken = reqBody["UserID"];
     var decodedToken = '';
 
-    try
-    {
+    try {
         decodedToken = await fs_auth.verifyIdToken(userToken)
     }
-    catch(error)
-    {
+    catch (error) {
         console.error(error);
         return;
     }
@@ -74,12 +72,12 @@ router.post("/sessions/create", async (req, res) => {
 })
 
 router.get("/sessions/getAll", async (req, res) => {
-    const userToken = req.query.uid;
-    
+    const userToken = req.query.token;
+
     const decodedToken = await fs_auth.verifyIdToken(userToken)
         .catch((error) => { console.error(error); });
-    
-    const UID = decodedToken.uid;
+
+    const UID = decodedToken.token;
     console.log(UID);
 
     const collectionRef = fs_db.collection("Sessions");
@@ -102,6 +100,7 @@ router.get("/sessions/getAll", async (req, res) => {
 
 router.get("/sessions/get", async (req, res) => {
     console.log(`getting specific session: ${req.query.id}`);
+
     const sessionID = req.query.id;
     const sessionDocRef = fs_db.collection("Sessions").doc(sessionID);
     const sessionDoc = await sessionDocRef.get();
@@ -111,19 +110,43 @@ router.get("/sessions/get", async (req, res) => {
     }
     else {
         res.status(400); // Replace with actual error code
-        res.json({"status": "no such file"});
+        res.json({ "status": "no such file" });
     }
 });
 
-router.post("/sessions/update", async (req, res) =>
-{
+router.post("/sessions/update", async (req, res) => {
     console.log("updating document");
-    
-    const sessionUpdate = req.body;
 
-    console.log(sessionUpdate);
-    const sessionID = sessionUpdate["Session_ID"];
+    const sessionUpdate = req.body;
+    const sessionID = req.query.id;
     const sessionDocRef = fs_db.collection("Sessions").doc(sessionID);
+
+    // Verify Token
+    const userToken = req.query.token;
+    var decodedToken;
+    try {
+        decodedToken = await fs_auth.verifyIdToken(userToken)
+    }
+    catch (error) {
+        console.error(error);
+        res.json({ "Status": "Token invalid" });
+        return;
+    }
+
+    // Verify User
+    const sessionDoc = await sessionDocRef.get()
+    if (sessionDoc.exists) {
+        const sessionUid = sessionDoc.data()["UserID"];
+        if (sessionUid != decodedToken.uid) {
+            res.json({ "Status": "UID mismatch" });
+            return;
+        }
+    }
+    else {
+        res.json({ "Status": "File not Found" });
+        return;
+    }
+    console.log("User verified");
 
     const result = await sessionDocRef.update(sessionUpdate);
     console.log(result);
@@ -132,4 +155,46 @@ router.post("/sessions/update", async (req, res) =>
     };
     res.json(response);
 });
+
+router.get("/sessions/delete", async (req, res) => {
+    console.log("deleting document");
+
+    const sessionID = req.query.id;
+    const sessionDocRef = fs_db.collection("Sessions").doc(sessionID);
+
+    // Verify Token
+    const userToken = req.query.token;
+    var decodedToken;
+    try {
+        decodedToken = await fs_auth.verifyIdToken(userToken)
+    }
+    catch (error) {
+        console.error(error);
+        res.json({ "Status": "Token invalid" });
+        return;
+    }
+
+    // Verify User
+    const sessionDoc = await sessionDocRef.get()
+    if (sessionDoc.exists) {
+        const sessionUid = sessionDoc.data()["UserID"];
+        if (sessionUid != decodedToken.uid) {
+            res.json({ "Status": "UID mismatch" });
+            return;
+        }
+    }
+    else {
+        res.json({ "Status": "File not Found" });
+        return;
+    }
+    console.log("User verified");
+
+    const result = await sessionDocRef.delete();
+    if (result.ok == true) {
+        res.json({ "Status": "ok" });
+    }
+    else {
+        res.json(result);
+    }
+})
 module.exports = router
